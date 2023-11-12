@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   colorScheme: "dark light",
   openGraph: {
     images: {
-      url: "/logo.png",
+      url: "https://res.cloudinary.com/dvc3vlqzv/image/upload/v1699806780/logo_rjnbfj.png",
     },
     url: "https://netai.vercel.app",
     type: "website",

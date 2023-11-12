@@ -13,16 +13,22 @@ export const generateMetadata = async ({
   if (!user) return notFound();
 
   return {
-    title: `${user.name} (@${user.username}) on Netai`,
-    description: `${user.bio}. ${user.followers.length} Followers. ${user.posts.length} Posts. ${user.following.length} Following.`,
+    title: `${user.name ?? ""} (@${user.username}) on Netai`,
+    description: `${user.bio ?? ""} | ${user.followers.length} Followers. ${
+      user.posts.length
+    } Posts. ${user.following.length} Following.`,
     openGraph: {
       images: {
-        url: user.picture!,
+        url:
+          user.picture ??
+          "https://res.cloudinary.com/dvc3vlqzv/image/upload/v1699806780/logo_rjnbfj.png",
       },
       url: `https://netai.vercel.app/@${user.username}`,
       type: "profile",
-      title: `${user.name} (@${user.username}) on Netai`,
-      description: `${user.bio}. ${user.followers.length} Followers. ${user.posts.length} Posts. ${user.following.length} Following.`,
+      title: `${user.name ?? ""} (@${user.username}) on Netai`,
+      description: `${user.bio ?? ""} | ${user.followers.length} Followers. ${
+        user.posts.length
+      } Posts. ${user.following.length} Following.`,
     },
   };
 };

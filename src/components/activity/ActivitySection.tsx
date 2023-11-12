@@ -137,7 +137,7 @@ const ActivitySection = ({ userId }: { userId: string }) => {
   ) : (
     <>
       {isLoading && <Loader />}
-      {!isLoading && <p className="text-center">No mentions yet</p>}
+      {!isLoading && <p className="text-center">No activity yet</p>}
     </>
   );
 };

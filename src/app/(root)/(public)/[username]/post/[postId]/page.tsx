@@ -27,7 +27,9 @@ export const generateMetadata = async ({
     description: post.caption,
     openGraph: {
       images: {
-        url: post.image?.src || post.owner.picture!,
+        url:
+          (post.image?.src || post.owner.picture) ??
+          "https://res.cloudinary.com/dvc3vlqzv/image/upload/v1699806780/logo_rjnbfj.png",
       },
       url: `https://netai.vercel.app/@${post.owner.username}/post/${postId}`,
       type: "article",

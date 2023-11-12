@@ -36,7 +36,9 @@ export const generateMetadata = async ({
     description: comment.text,
     openGraph: {
       images: {
-        url: comment.owner.picture!,
+        url:
+          comment.owner.picture ??
+          "https://res.cloudinary.com/dvc3vlqzv/image/upload/v1699806780/logo_rjnbfj.png",
       },
       url: `/@${comment.owner.username}/comment/${commentId}`,
       type: "article",
