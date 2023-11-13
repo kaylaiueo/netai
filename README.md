@@ -36,9 +36,10 @@ Netai is a social media platform for sharing photos, your feelings, connecting w
 - Search user
 - Explore page
   - Text only post
-  - Media only post
+  - With media post
 - Edit Profile
 - Profile
+  - Posts
   - Likes
   - Media
 - Infinite scroll
@@ -72,7 +73,7 @@ pnpm install
 bun install
 ```
 
-Setup .env file, check file [.env.example](./.env.example)
+Setup .env file, check file [.env.example](./.env.example) to see what you need. and create an `.env.local` file in the root folder.
 
 And start your build process:
 
