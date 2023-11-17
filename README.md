@@ -78,6 +78,12 @@ Start the build process:
 | `npm run build` | Build the app for production              |
 | `npm start`     | Start the app in production mode          |
 
+## Known Issues
+
+- Error often occurs with `Application error: a server-side exception has
+  occurred` message. It need to restart the page.
+- Data or activity not updated (liked or commented some posts) because of caches.
+
 ## UI/UX References
 
 - Instagram
@@ -87,12 +93,6 @@ Start the build process:
 - YouTube
 - TikTok
 - My brain
-
-## Known Issues
-
-- Error often occurs with `Application error: a server-side exception has
-  occurred` message. It need to restart the page.
-- Data or activity not updated (liked or commented some posts) because of caches.
 
 ## License
 
