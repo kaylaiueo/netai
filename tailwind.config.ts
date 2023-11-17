@@ -7,4 +7,5 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
 };
+
 export default config;

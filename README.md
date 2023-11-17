@@ -1,90 +1,99 @@
-<p align="center">
-  <img src="./public/logo.png">
-</p>
+![Netai logo](public/logo.png)
 
 # Netai
 
-Netai is a social media platform for sharing photos, your feelings, connecting with friends, and discovering new content.
+Netai is a social media platform for sharing photos, your feelings, connecting
+with friends, and discovering new contents.
 
 ## Tech Stack
 
-- Next js
+- Next.js
 - React
-- Typescript
+- TypeScript
 - MongoDB
-- Express js
+- Express.js
 - Tailwind CSS
 - Cloudinary
 
 ## Features
 
-- Create post
-  - Media upload (For now you can only upload images)
-  - Text only
-- Mentions
-- Delete post
-- Comment
-- Reply comment
-- Like post
-- Follow User
-- Notifications
-  - Like
-  - Comment
-  - Reply
-  - Follow
-  - Mentions
-- Search user
-- Explore page
-  - Text only post
-  - With media post
-- Edit Profile
-- Profile
-  - Posts
-  - Likes
-  - Media
-- Infinite scroll
-- Full responsivity and mobile UI
+- Create post with text and upload images
+- Commenting some posts
+- Like and delete posts
+- Edit your own profile
+- Search, follow, and mention other users
+- Explore page with text and media posts
+- Notification for like, comment, reply, follow, and mentions
 
-## UI/UX Reference
+## Installation & Usage Instructions
+
+Clone the project:
+
+```sh
+git clone https://github.com/kaylaiueo/netai.git
+```
+
+Open the directory and install the dependencies with the one of your favorite
+package manager:
+
+```sh
+cd netai
+
+# Node.js package manager
+npm install
+
+# Yarn package manager
+yarn install
+
+# pnpm package manager
+pnpm install
+
+# Bun runtime
+bun install
+```
+
+Copy the [`.env.example`](.env.example) file into `.env.local` in the root
+directory:
+
+```sh
+cp .env.example .env.local
+```
+
+You need to have [Cloudinary](https://cloudinary.com/) account to get every
+essential local environment for `.env.local`:
+
+- Cloud name, API key, and API secret are available at dashboard page.
+- Upload preset name are available at settings -> product environment settings
+  -> upload -> upload presets.
+
+To get the API URL for `.env.local`, you need to set up the back-end. See
+[netai-api repository](https://github.com/kaylaiueo/netai-api) for
+more detail instructions.
+
+Start the build process:
+
+| Command         | Description                               |
+| --------------- | ----------------------------------------- |
+| `npm run dev`   | Start the development instance of the app |
+| `npm run build` | Build the app for production              |
+| `npm start`     | Start the app in production mode          |
+
+## UI/UX References
 
 - Instagram
 - Threads
 - Twitter
 - Discord
-- Youtube
-- Tiktok
+- YouTube
+- TikTok
 - My brain
 
-## Usage Instructions for Contributors
+## Known Issues
 
-Clone the project:
-
-```
-git clone https://github.com/kaylaiueo/netai.git
-cd netai
-```
-
-Install packages
-
-```
-npm install
-yarn install
-pnpm install
-bun install
-```
-
-Setup .env file, check file [.env.example](./.env.example) to see what you need. and create an `.env.local` file in the root folder.
-
-For backend setup see here [Netai-api](https://github.com/kaylaiueo/netai-api)
-
-And start your build process:
-
-| Command         | Description                              |
-| --------------- | ---------------------------------------- |
-| `npm run dev`   | Starts a development instance of the app |
-| `npm run build` | Builds the app for production            |
-| `npm start`     | Starts the app in production mode        |
+- Error often occurs with `Application error: a server-side exception has
+  occurred` message. It need to restart the page.
+- Data or activity not updated (liked or commented some posts) because of caches.
 
 ## License
 
-Netai is licensed under the terms of the [MIT license](./LICENSE).
+Netai source code is licensed under the [MIT license](LICENSE).
