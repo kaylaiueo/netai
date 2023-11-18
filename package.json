@@ -1,13 +1,24 @@
 {
   "name": "netai",
   "version": "0.1.0",
-  "license": "MIT",
+  "description": "Netai is a social media platform for sharing photos, your feelings, connecting with friends, and discovering new content.",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaylaiueo/netai"
+  },
+  "keywords": ["social-media", "sharing-photos"],
+  "author": "kaylaiueo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaylaiueo/netai/issues"
+  },
+  "homepage": "https://netai.vercel.app/",
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
     "@types/node": "20.4.9",
