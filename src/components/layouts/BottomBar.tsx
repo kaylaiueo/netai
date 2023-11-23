@@ -2,34 +2,12 @@
 
 import type { UserData } from "@/types";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
 import ProfilePicture from "../ui/ProfilePicture";
-import { Logout } from "@/actions";
-import {
-  FiHeart,
-  FiHome,
-  FiLogOut,
-  FiPlusSquare,
-  FiUser,
-} from "react-icons/fi";
+import { FiHeart, FiHome, FiPlusSquare } from "react-icons/fi";
 
 const BottomBar = ({ user }: { user: UserData }) => {
-  const router = useRouter();
-  const [_, startTransition] = useTransition();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const handleMenu = () => {
-    setIsOpen((prev) => !prev);
-  };
-
-  const handleLogout = () => {
-    startTransition(() => {
-      Logout();
-      router.replace("/login");
-    });
-  };
 
   return (
     <footer
@@ -67,45 +45,13 @@ const BottomBar = ({ user }: { user: UserData }) => {
         <p className="max-xl:hidden">Activity</p>
       </Link>
 
-      {isOpen && (
-        <div
-          onClick={handleMenu}
-          className="w-full h-screen flex justify-center items-center fixed top-0 left-0 z-50 bg-black/50"
-        />
-      )}
-
-      <div
-        onClick={handleMenu}
-        className={
-          isOpen
-            ? "fixed bottom-0 left-0 right-0 z-50 dark:bg-[#121212] bg-white py-5 px-2 rounded-t-md shadow shadow-black dark:shadow-white"
-            : "hidden"
-        }>
-        <Link
-          href={`/@${user.username}`}
-          className="flex gap-4 items-center py-2 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 px-3 text-lg w-full">
-          <FiUser size={25} title="Profile" />
-          <span>Profile</span>
-        </Link>
-
-        <div className="w-full h-[1px] bg-gray-200 dark:bg-white/10" />
-
-        <button
-          onClick={handleLogout}
-          className="flex gap-4 items-center py-2 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 px-3 text-lg w-full">
-          <FiLogOut size={25} title="Log out" />
-          <span>Log out</span>
-        </button>
-      </div>
-
-      <button
-        type="button"
-        onClick={handleMenu}
+      <Link
+        href={`/@${user.username}`}
         className={`flex gap-4 items-center py-2 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 px-5 text-lg ${
           pathname.includes(user.username) && "bg-gray-200 dark:bg-white/10"
         }`}>
         <ProfilePicture src={user.picture} className="w-7" />
-      </button>
+      </Link>
     </footer>
   );
 };

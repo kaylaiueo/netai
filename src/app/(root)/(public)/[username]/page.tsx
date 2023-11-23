@@ -20,7 +20,7 @@ const ProfilePage = async ({ params: { username } }: Params) => {
       <PostSection
         username={username.slice(3)}
         userId={userId}
-        type="allPosts"
+        type="userPosts"
       />
     </ProfileHeader>
   );

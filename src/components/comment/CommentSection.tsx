@@ -5,11 +5,13 @@ import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import CommentForm from "../form/CommentForm";
-import type { UserData } from "@/types";
+import type { CommentData, UserData } from "@/types";
 import { useSearchParams } from "next/navigation";
 import Adiv from "@/components/ui/Adiv";
-import { getCommentInPost } from "@/utils/getInfiniteData";
 import Link from "next/link";
+import { useInfiniteQuery, useMutationState } from "@tanstack/react-query";
+import { getCommentInPost } from "@/actions";
+import Loader from "../ui/Loader";
 
 interface Props {
   userId: string;
@@ -21,11 +23,20 @@ const CommentSection = ({ userId, postId, currentUser }: Props) => {
   const searchParams = useSearchParams();
   const query = searchParams.get("id");
   const { ref, inView } = useInView();
-  const { comments, setSize, isReachingEnd, isDeletedOne, size } =
-    getCommentInPost(postId);
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: [postId],
+    queryFn: ({ pageParam }) => getCommentInPost({ postId, pageParam }),
+    getNextPageParam: (LastPage, pages) => {
+      if (LastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (inView && !isReachingEnd && !isDeletedOne) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
 
   useEffect(() => {
@@ -34,6 +45,14 @@ const CommentSection = ({ userId, postId, currentUser }: Props) => {
         .getElementById(query)
         ?.scrollIntoView({ block: "center", inline: "center" });
   }, []);
+
+  const optimisticComment = useMutationState({
+    filters: { status: "pending" },
+    select: (mutation) => mutation.state.variables as CommentData,
+  });
+
+  const comments =
+    data?.pages.flatMap((post) => [...optimisticComment, ...post]) ?? [];
 
   return (
     <>
@@ -55,7 +74,6 @@ const CommentSection = ({ userId, postId, currentUser }: Props) => {
                   owner={comment.owner}
                   createdAt={comment.createdAt}
                   userId={userId}
-                  postId={postId}
                   type="comment"
                 />
                 <CommentCard.Body>{comment.text}</CommentCard.Body>
@@ -70,9 +88,11 @@ const CommentSection = ({ userId, postId, currentUser }: Props) => {
           </div>
         ))}
 
-        {!isReachingEnd && !isDeletedOne && (
+        {isLoading && <Loader />}
+
+        {hasNextPage && (
           <div ref={ref} className="flex justify-center items-center w-full">
-            <BiLoaderAlt size={24} className="animate-spin" />
+            <BiLoaderAlt size={25} className="animate-spin" />
           </div>
         )}
 

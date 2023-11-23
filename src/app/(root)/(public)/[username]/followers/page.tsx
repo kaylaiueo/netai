@@ -6,7 +6,6 @@ import useCookies from "@/hooks/useCookies";
 import type { UserData } from "@/types";
 import { getUserByUsername } from "@/utils/getData";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { TbCircleCheckFilled } from "react-icons/tb";
 
 interface Params {
@@ -17,8 +16,6 @@ interface Params {
 
 const FollowersPage = async ({ params: { username } }: Params) => {
   const { userId } = useCookies();
-  if (!userId) redirect("/login");
-
   const { user } = await getUserByUsername(username);
 
   return (

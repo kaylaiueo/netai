@@ -1,6 +1,5 @@
 import ActivityLayout from "@/components/layouts/ActivityLayout";
 import useCookies from "@/hooks/useCookies";
-import { redirect } from "next/navigation";
 import ActivitySection from "@/components/activity/ActivitySection";
 import MentionSection from "@/components/activity/MentionSection";
 
@@ -10,7 +9,6 @@ const ActivityPage = async ({
   searchParams: { tab: "mentions" };
 }) => {
   const { userId } = useCookies();
-  if (!userId) redirect("/login");
 
   return (
     <ActivityLayout type={tab}>

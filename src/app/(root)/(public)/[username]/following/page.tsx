@@ -5,7 +5,6 @@ import ProfilePicture from "@/components/ui/ProfilePicture";
 import useCookies from "@/hooks/useCookies";
 import { getUserByUsername } from "@/utils/getData";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { TbCircleCheckFilled } from "react-icons/tb";
 
 interface Params {
@@ -16,8 +15,6 @@ interface Params {
 
 const FollowingPage = async ({ params: { username } }: Params) => {
   const { userId } = useCookies();
-  if (!userId) redirect("/login");
-
   const { user } = await getUserByUsername(username);
 
   return (

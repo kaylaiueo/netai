@@ -1,7 +1,6 @@
 import useCookies from "@/hooks/useCookies";
 import SearchLayout from "@/components/layouts/SearchLayout";
 import SearchResult from "@/components/home/SearchResult";
-import { redirect } from "next/navigation";
 import PostSection from "@/components/home/PostSection";
 
 const HomePage = async ({
@@ -10,7 +9,6 @@ const HomePage = async ({
   searchParams: { q: string; tab: "media" };
 }) => {
   const { userId } = useCookies();
-  if (!userId) redirect("/login");
 
   return (
     <SearchLayout type={tab}>

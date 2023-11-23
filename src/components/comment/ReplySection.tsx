@@ -4,10 +4,12 @@ import { useEffect } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import { useInView } from "react-intersection-observer";
 import CommentForm from "../form/CommentForm";
-import type { UserData } from "@/types";
+import type { ReplyData, UserData } from "@/types";
 import CommentCard from "./CommentCard";
-import { getRepliedComment } from "@/utils/getInfiniteData";
 import Link from "next/link";
+import { useInfiniteQuery, useMutationState } from "@tanstack/react-query";
+import { getRepliesInComment } from "@/actions";
+import Loader from "../ui/Loader";
 
 interface Props {
   commentId: string;
@@ -18,11 +20,20 @@ interface Props {
 
 const ReplySection = ({ commentId, userId, query, currentUser }: Props) => {
   const { ref, inView } = useInView();
-  const { replies, isReachingEnd, setSize, size, isDeletedOne } =
-    getRepliedComment(commentId);
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: [commentId],
+    queryFn: ({ pageParam }) => getRepliesInComment({ commentId, pageParam }),
+    getNextPageParam: (LastPage, pages) => {
+      if (LastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (inView && !isReachingEnd && !isDeletedOne) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
 
   useEffect(() => {
@@ -31,6 +42,14 @@ const ReplySection = ({ commentId, userId, query, currentUser }: Props) => {
         .getElementById(query)
         ?.scrollIntoView({ block: "center", inline: "center" });
   }, []);
+
+  const optimisticComment = useMutationState({
+    filters: { status: "pending" },
+    select: (mutation) => mutation.state.variables as ReplyData,
+  });
+
+  const replies =
+    data?.pages.flatMap((post) => [...optimisticComment, ...post]) ?? [];
 
   return (
     <>
@@ -65,9 +84,11 @@ const ReplySection = ({ commentId, userId, query, currentUser }: Props) => {
           </div>
         ))}
 
-        {!isReachingEnd && !isDeletedOne && (
+        {isLoading && <Loader />}
+
+        {hasNextPage && (
           <div ref={ref} className="flex justify-center items-center w-full">
-            <BiLoaderAlt size={24} className="animate-spin" />
+            <BiLoaderAlt size={25} className="animate-spin" />
           </div>
         )}
 

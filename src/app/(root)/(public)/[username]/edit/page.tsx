@@ -1,13 +1,10 @@
 import useCookies from "@/hooks/useCookies";
 import EditProfileForm from "@/components/form/EditProfileForm";
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/utils/getData";
 import BackButton from "@/components/ui/BackButton";
 
 const EditProfilePage = async () => {
   const { userId } = useCookies();
-  if (!userId) redirect("/login");
-
   const { currentUser } = await getCurrentUser();
 
   return (

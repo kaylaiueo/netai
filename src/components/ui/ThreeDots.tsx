@@ -6,11 +6,7 @@ import useFetch from "@/hooks/useFetch";
 import { useRouter } from "next/navigation";
 import DeleteImg from "@/utils/DeleteImg";
 import toast from "react-hot-toast";
-import {
-  getCommentInPost,
-  getPostByUsername,
-  getRepliedComment,
-} from "@/utils/getInfiniteData";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   id: string;
@@ -19,33 +15,20 @@ type Props = {
   userId: string;
   username?: string;
   image?: string;
-  commentId?: string;
-  replyId?: string;
-  postId?: string;
 };
 
 const ThreeDots = (props: Props) => {
-  const {
-    id,
-    type,
-    owner,
-    userId,
-    username,
-    image,
-    postId,
-    commentId,
-    replyId,
-  } = props;
+  const { id, type, owner, userId, username, image } = props;
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [_, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const { comments, mutate: mutateComments } = getCommentInPost(postId);
-  const { replies, mutate: mutateReply } = getRepliedComment(commentId);
-  const { posts, mutate: mutatePost } = getPostByUsername({
-    username: username!,
-    type: "allPosts",
+  const deleteMutation = useMutation({
+    onSettled: () => {
+      queryClient.invalidateQueries();
+    },
   });
 
   const handleMenu = () => {
@@ -53,62 +36,40 @@ const ThreeDots = (props: Props) => {
   };
 
   const handleDelete = () => {
-    if (type === "comment") {
-      mutateComments(
-        [comments.filter((comment) => comment._id !== commentId)],
-        {
-          populateCache: true,
-          rollbackOnError: true,
-          revalidate: false,
-        }
-      );
-    }
-
-    if (type === "reply") {
-      mutateReply([replies.filter((reply) => reply._id !== replyId)], {
-        populateCache: true,
-        rollbackOnError: true,
-        revalidate: false,
-      });
-    }
-
-    if (type === "post") {
-      mutatePost([posts.filter((post) => post._id !== id)], {
-        populateCache: true,
-        rollbackOnError: true,
-        revalidate: false,
-      });
-    }
-
     startTransition(async () => {
-      if (image) DeleteImg(image);
-      useFetch(`/${type}/${id}`, { method: "DELETE" });
-    });
+      if (image) await DeleteImg(image);
 
-    setIsOpen(false);
+      const { success } = await useFetch(`/${type}/${id}`, {
+        method: "DELETE",
+      });
 
-    if (window.location.pathname.includes(id)) {
-      router.push("/");
-    }
+      if (success) {
+        setIsOpen(false);
+        router.refresh();
 
-    router.refresh();
-    toast.success(type + " deleted", {
-      className: "capitalize",
+        toast.success(type + " deleted", {
+          className: "capitalize",
+        });
+      }
+
+      if (!success) {
+        toast.error("Something went wrong, try again later");
+      }
+
+      if (window.location.pathname.includes(id)) {
+        router.back();
+      }
+
+      deleteMutation.mutate();
     });
   };
 
   const handleCopyUrl = () => {
     handleMenu();
 
-    if (type === "post") {
-      navigator.clipboard.writeText(
-        `${window.location.origin}/@${username}/post/${id}`
-      );
-    } else if (type === "comment") {
-      navigator.clipboard.writeText(
-        `${window.location.origin}/@${username}/comment/${commentId}`
-      );
-    }
+    navigator.clipboard.writeText(
+      `${window.location.origin}/@${username}/${type}/${id}`
+    );
   };
 
   return (
@@ -144,9 +105,10 @@ const ThreeDots = (props: Props) => {
           {owner === userId && (
             <button
               onClick={handleDelete}
-              className="flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-white/10 px-2 py-1 rounded-md cursor-pointer w-full">
+              disabled={isPending}
+              className="flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-white/10 px-2 py-1 rounded-md cursor-pointer w-full disabled:text-gray-400">
               <BsTrash />
-              Delete
+              {isPending ? "Deleting..." : "Delete"}
             </button>
           )}
         </div>

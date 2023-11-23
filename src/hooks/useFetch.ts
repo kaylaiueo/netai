@@ -12,6 +12,7 @@ const useFetch = async <T>(
     headers: {
       "Content-Type": "application/json",
     },
+    cache: "no-store",
     ...options,
   }).then((res) => res.json());
 

@@ -162,12 +162,7 @@ const Footer = ({
         {totalComments > 0 && <p>{FormatNumber(totalComments)}</p>}
       </Link>
 
-      <LikeButton
-        userId={userId}
-        postId={post._id}
-        likes={post.likes}
-        username={currentUser ?? ""}
-      />
+      <LikeButton userId={userId} postId={post._id} likes={post.likes} />
     </div>
   );
 };

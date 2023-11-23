@@ -9,6 +9,7 @@ import { TbCircleCheckFilled } from "react-icons/tb";
 import FormatNumber from "@/utils/FormatNumber";
 import RenderLink from "@/components/ui/RenderLink";
 import BackButton from "../ui/BackButton";
+import { BsGear } from "react-icons/bs";
 
 interface Props {
   user: UserData;
@@ -22,19 +23,17 @@ const ProfileHeader = ({ user, children, userId, type }: Props) => {
 
   return (
     <>
-      <header className="flex gap-2 items-center mt-4">
-        <BackButton />
-        <p className="text-lg font-bold">
-          {user.username}
-          {user.posts.length > 0 && (
-            <>
-              <span className="text-gray-500 dark:text-gray-400"> · </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {user.posts.length} posts
-              </span>
-            </>
-          )}
-        </p>
+      <header className="flex gap-2 items-center justify-between mt-4">
+        <div className="flex gap-2 items-center">
+          <BackButton />
+          <h1 className="text-xl md:text-2xl font-bold">Profile</h1>
+        </div>
+
+        {userId === user._id && (
+          <Link href={`/@${user.username}/settings`} className="p-1">
+            <BsGear size={22} />
+          </Link>
+        )}
       </header>
 
       <section className="space-y-2">
@@ -95,7 +94,7 @@ const ProfileHeader = ({ user, children, userId, type }: Props) => {
               <Link
                 href={`/@${user.username}/following`}
                 className="hover:underline">
-                <span className="text-black dark:text-white font-semibold">
+                <span className="font-semibold">
                   {FormatNumber(user.following.length)}{" "}
                 </span>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">
@@ -112,13 +111,25 @@ const ProfileHeader = ({ user, children, userId, type }: Props) => {
               <Link
                 href={`/@${user.username}/followers`}
                 className="hover:underline">
-                <span className="text-black dark:text-white font-semibold">
+                <span className="font-semibold">
                   {FormatNumber(user.followers.length)}{" "}
                 </span>
                 <span className="text-gray-500 dark:text-gray-400 text-sm">
                   Followers
                 </span>
               </Link>
+            )}
+
+            {(user.followers?.length > 0 || user.following?.length > 0) &&
+              user.posts.length > 0 && <span>·</span>}
+
+            {user.posts.length > 0 && (
+              <p>
+                <span className="font-semibold">{user.posts.length} </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  posts
+                </span>
+              </p>
             )}
           </div>
 

@@ -42,14 +42,14 @@ const ReplyButton = ({
   ) : (
     <Link
       href={`/@${username}/comment/${commentId}`}
-      className="flex gap-2 items-center text-gray-500 dark:text-gray-400 hover:text-blue-500 text-sm">
+      className="flex gap-2 items-center text-gray-500 dark:text-gray-400 group hover:text-blue-500 text-sm">
       <FiMessageCircle size={22} title="Reply" />
       {totalReplies ? (
         <p>
-          <span className="text-black dark:text-white font-semibold">
+          <span className="text-black dark:text-white font-semibold group-hover:text-blue-500">
             {FormatNumber(totalReplies)}{" "}
           </span>
-          <span className="text-gray-500 dark:text-gray-400">
+          <span className="group-hover:text-blue-500">
             {totalReplies > 1 ? "Replies" : "Reply"}
           </span>
         </p>

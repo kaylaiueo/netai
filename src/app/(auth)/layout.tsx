@@ -2,6 +2,8 @@ import "../globals.css";
 import Image from "next/image";
 import { Poppins } from "next/font/google";
 import type { Metadata } from "next";
+import useCookies from "@/hooks/useCookies";
+import { redirect } from "next/navigation";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -18,6 +20,9 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { userId } = useCookies();
+  if (userId) return redirect("/");
+
   return (
     <html lang="en">
       <body className={poppins.className}>

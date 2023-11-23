@@ -2,30 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { Logout } from "@/actions";
+import { usePathname } from "next/navigation";
 import type { UserData } from "@/types";
 import ProfilePicture from "@/components/ui/ProfilePicture";
-import { FiHeart, FiHome, FiLogOut, FiPlusSquare } from "react-icons/fi";
+import { FiHeart, FiHome, FiPlusSquare } from "react-icons/fi";
 
 const LeftSideBar = ({ user }: { user: UserData }) => {
   const pathname = usePathname();
-  const router = useRouter();
-  const [_, startTransition] = useTransition();
 
   const findActivityToday = user.activities?.filter((activity) => {
     const currentDate = new Date().getDate();
 
     return new Date(activity.createdAt).getDate() === currentDate;
   });
-
-  const handleLogout = () => {
-    startTransition(() => {
-      Logout();
-      router.replace("/login");
-    });
-  };
 
   return (
     <aside className="hidden sticky top-0 p-5 w-full max-w-xs max-xl:w-max h-screen md:flex justify-between flex-col">
@@ -80,13 +69,6 @@ const LeftSideBar = ({ user }: { user: UserData }) => {
           <ProfilePicture src={user.picture} className="w-7" />
           <p className="max-xl:hidden">Profile</p>
         </Link>
-
-        <button
-          onClick={handleLogout}
-          className="flex gap-4 items-center py-2 rounded-md hover:bg-gray-200 dark:hover:bg-white/10 px-5 text-lg w-full">
-          <FiLogOut size={25} title="Log out" />
-          <span className="max-xl:hidden">Log out</span>
-        </button>
       </div>
     </aside>
   );

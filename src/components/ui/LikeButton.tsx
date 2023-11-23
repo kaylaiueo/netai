@@ -1,28 +1,29 @@
 "use client";
 
-import useFetch from "@/hooks/useFetch";
 import { FiHeart } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import FormatNumber from "@/utils/FormatNumber";
-import { getAllPosts, getPostByUsername } from "@/utils/getInfiniteData";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { likePost } from "@/actions";
 
 type Props = {
   postId: string;
   userId: string;
   likes: string[];
-  username: string;
 };
 
-const LikeButton = ({ postId, userId, likes, username }: Props) => {
+const LikeButton = ({ postId, userId, likes }: Props) => {
   const router = useRouter();
   const [_, startTransition] = useTransition();
   const [isLike, setIsLike] = useState<boolean>(false);
-  const { mutate: mutateLikedPosts } = getPostByUsername({
-    username,
-    type: "likedPosts",
+  const queryClient = useQueryClient();
+
+  const likeMutation = useMutation({
+    onSettled: () => {
+      queryClient.invalidateQueries();
+    },
   });
-  const { mutate: mutateAllPosts } = getAllPosts(userId, false);
 
   const handleLike = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -31,22 +32,22 @@ const LikeButton = ({ postId, userId, likes, username }: Props) => {
     setIsLike((prev) => !prev);
 
     startTransition(async () => {
-      const url = isLike ? `/post/dislike/${postId}` : `/post/like/${postId}`;
+      const { message } = await likePost({ postId, userId });
 
-      await useFetch(url, {
-        method: "PUT",
-        cache: "no-store",
-        body: JSON.stringify({ userId }),
-      });
-
-      isLike ? mutateLikedPosts() : mutateAllPosts();
-      router.refresh();
+      if (message.includes("Liked")) {
+        setIsLike(true);
+      } else if (message.includes("Disliked")) {
+        setIsLike(false);
+      }
     });
+
+    likeMutation.mutate();
+    router.refresh();
   };
 
   useEffect(() => {
     if (likes.includes(userId)) setIsLike(true);
-  }, []);
+  }, [postId]);
 
   return (
     <button
@@ -58,7 +59,7 @@ const LikeButton = ({ postId, userId, likes, username }: Props) => {
       <FiHeart
         size={23}
         title="Like"
-        className={`${isLike ? "fill-red-500" : ""}`}
+        className={isLike ? "fill-red-600 dark:fill-red-500" : ""}
       />
       {likes.length > 0 && <p>{FormatNumber(likes.length)}</p>}
     </button>

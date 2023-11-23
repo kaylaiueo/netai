@@ -1,15 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useTransition } from "react";
 import { FaUpload, FaX } from "react-icons/fa6";
 import { TbPhotoPlus } from "react-icons/tb";
 import UploadImg from "@/utils/UploadImg";
-import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import useFetch from "@/hooks/useFetch";
-import { getPostByUsername } from "@/utils/getInfiniteData";
 import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addPost } from "@/actions";
 
 interface Props {
   userId: string;
@@ -18,11 +17,18 @@ interface Props {
 
 const CreatePostForm = ({ userId, username }: Props) => {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [caption, setCaption] = useState<string>("");
   const [fileImage, setFileImage] = useState<FormData | null>(null);
   const [previewImage, setPreviewImage] = useState<string>("");
-  const [isPending, startTransition] = useTransition();
-  const { mutate } = getPostByUsername({ username, type: "allPosts" });
+  const queryClient = useQueryClient();
+
+  const addPostMutation = useMutation({
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["userPosts"],
+      }),
+  });
 
   const getFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -50,29 +56,24 @@ const CreatePostForm = ({ userId, username }: Props) => {
         height: response?.height,
       };
 
-      const { success, message } = await useFetch("/post", {
-        method: "POST",
-        cache: "no-store",
-        body: JSON.stringify({
-          image,
-          caption,
-          owner: userId,
-        }),
-      });
+      const { success, message } = await addPost({ caption, image, userId });
 
       if (success) {
         toast.success(message);
-      } else {
+        router.refresh();
+      }
+
+      if (!success) {
         toast.error("Pls try again");
       }
 
-      mutate();
+      addPostMutation.mutate();
       router.push(`/@${username}`);
     });
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 flex-1">
+    <form onSubmit={onSubmit} className="space-y-3 flex-1 pb-4">
       <textarea
         onChange={(e) => setCaption(e.target.value)}
         placeholder="Write a caption..."

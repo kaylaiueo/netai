@@ -1,25 +1,36 @@
 "use client";
 
 import Adiv from "@/components/ui/Adiv";
-import { getActivities } from "@/utils/getInfiniteData";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import PostCard from "../post/PostCard";
 import { FaArrowsTurnRight } from "react-icons/fa6";
 import CommentCard from "../comment/CommentCard";
 import { BiLoaderAlt } from "react-icons/bi";
 import Loader from "../ui/Loader";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getActivities } from "@/actions";
 
 const MentionSection = ({ userId }: { userId: string }) => {
   const { ref, inView } = useInView();
-  const { activities, setSize, size, isReachingEnd, isLoading } = getActivities(
-    userId,
-    "mentions"
-  );
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ["mentions"],
+    queryFn: ({ pageParam }) =>
+      getActivities({ pageParam, userId, type: "mentions" }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (inView) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
+
+  const activities = data?.pages.flatMap((post) => post) ?? [];
 
   return activities.length > 0 ? (
     <section className="max-md:pb-14 space-y-3">
@@ -79,7 +90,7 @@ const MentionSection = ({ userId }: { userId: string }) => {
         );
       })}
 
-      {!isReachingEnd && activities.length > 0 && (
+      {hasNextPage && activities.length > 0 && (
         <div ref={ref} className="flex justify-center items-center w-full">
           <BiLoaderAlt size={24} className="animate-spin" />
         </div>

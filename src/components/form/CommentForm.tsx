@@ -4,11 +4,12 @@ import ProfilePicture from "@/components/ui/ProfilePicture";
 import { GlobalContext } from "@/context";
 import { FiX } from "react-icons/fi";
 import { RiSendPlane2Line } from "react-icons/ri";
-import { useContext, useRef, useState, useTransition } from "react";
+import { useContext, useRef, useState } from "react";
 import { addComment } from "@/actions";
 import type { CommentData, ReplyData, UserData } from "@/types";
 import toast from "react-hot-toast";
-import { getCommentInPost, getRepliedComment } from "@/utils/getInfiniteData";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   currentUser?: UserData;
@@ -25,13 +26,38 @@ const CommentForm = ({
   type,
   commentId,
 }: Props) => {
+  const router = useRouter();
   const { reply, setReply } = useContext(GlobalContext);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [_, startTransition] = useTransition();
   const [comment, setComment] = useState<string>("");
+  const queryClient = useQueryClient();
 
-  const { replies, mutate: mutateReply } = getRepliedComment(commentId);
-  const { comments, mutate: mutateComments } = getCommentInPost(postId);
+  const addCommentMutation = useMutation({
+    mutationFn: async (newComment: CommentData & ReplyData) => {
+      const url =
+        type === "reply" ? `/reply/${commentId}` : `/comment/${postId}`;
+
+      const values = {
+        owner: userId,
+        text: comment,
+        ...(type === "reply" ? { ref: commentId as string } : { ref: postId! }),
+      };
+
+      const { success } = await addComment(url, values);
+      if (success) {
+        router.refresh();
+        toast.success("Comment Added");
+      }
+
+      if (!success) {
+        toast.error("Pls try again");
+      }
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: [type === "reply" ? commentId : postId],
+      }),
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,27 +74,8 @@ const CommentForm = ({
       optimistic: true,
     };
 
-    const url = type === "reply" ? `/reply/${commentId}` : `/comment/${postId}`;
-
-    const values = {
-      owner: userId,
-      text: comment,
-      ...(type === "reply" ? { ref: commentId as string } : { ref: postId! }),
-    };
-
-    type === "reply"
-      ? mutateReply([[newComment, ...replies]])
-      : mutateComments([[newComment, ...comments]]);
-
-    startTransition(async () => {
-      const { success } = await addComment(url, values);
-      if (success) {
-        toast.success("Comment Added");
-      }
-    });
-
+    addCommentMutation.mutate(newComment);
     setReply({ active: false, ref: "", to: "", deep: false });
-    type === "reply" ? mutateReply() : mutateComments();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

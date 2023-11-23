@@ -42,7 +42,6 @@ const Header = ({
   owner,
   createdAt,
   commentId,
-  postId,
   userId,
   disableMenu,
   type,
@@ -55,7 +54,6 @@ const Header = ({
   commentId?: string;
   replyId?: string;
   createdAt: Date;
-  postId?: string;
   userId: string;
   type?: "comment" | "reply";
   disableMenu?: boolean;
@@ -93,12 +91,9 @@ const Header = ({
           <ThreeDots
             type={type!}
             id={replyId || commentId || ""}
-            replyId={replyId}
             username={owner.username}
-            commentId={commentId}
             owner={owner._id}
             userId={userId}
-            postId={postId}
           />
         )}
       </Adiv>
@@ -145,7 +140,7 @@ const Footer = ({
         commentId={commentId}
         username={owner.username}
       />
-      {optimistic && <BiLoaderAlt size={24} className="animate-spin" />}
+      {optimistic && <BiLoaderAlt size={25} className="animate-spin" />}
     </div>
   );
 };

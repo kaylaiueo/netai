@@ -11,7 +11,8 @@ import FormatNumber from "@/utils/FormatNumber";
 import { BiLoaderAlt } from "react-icons/bi";
 import type { CommentData } from "@/types";
 import Loader from "../ui/Loader";
-import { getAllPosts } from "@/utils/getInfiniteData";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getAllPosts } from "@/actions";
 
 interface Props {
   userId: string;
@@ -20,14 +21,23 @@ interface Props {
 
 const PostSection = ({ userId, imageOnly }: Props) => {
   const { ref, inView } = useInView();
-  const { posts, setSize, size, isReachingEnd, isLoading } = getAllPosts(
-    userId,
-    imageOnly!
-  );
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: [imageOnly ? "imageOnlyPosts" : "allPosts"],
+    queryFn: ({ pageParam }) => getAllPosts({ pageParam, userId, imageOnly }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (inView) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
+
+  const posts = data?.pages.flatMap((post) => post) ?? [];
 
   return imageOnly ? (
     <>
@@ -80,14 +90,14 @@ const PostSection = ({ userId, imageOnly }: Props) => {
 
       {isLoading && <Loader />}
 
-      {!isReachingEnd && posts.length > 0 && (
+      {hasNextPage && (
         <div ref={ref} className="flex justify-center items-center w-full">
-          <BiLoaderAlt size={24} className="animate-spin" />
+          <BiLoaderAlt size={25} className="animate-spin" />
         </div>
       )}
     </>
   ) : (
-    <section className="max-md:pb-14 space-y-3">
+    <section className="max-md:pb-14 pb-4 space-y-3">
       {posts?.map((post, i) => (
         <Adiv
           key={i}
@@ -103,7 +113,7 @@ const PostSection = ({ userId, imageOnly }: Props) => {
 
       {isLoading && <Loader />}
 
-      {!isReachingEnd && posts.length > 0 && (
+      {hasNextPage && (
         <div ref={ref} className="flex justify-center items-center w-full">
           <BiLoaderAlt size={25} className="animate-spin" />
         </div>

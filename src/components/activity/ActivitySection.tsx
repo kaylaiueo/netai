@@ -1,7 +1,6 @@
 "use client";
 
 import Adiv from "@/components/ui/Adiv";
-import { getActivities } from "@/utils/getInfiniteData";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import ProfilePicture from "../ui/ProfilePicture";
@@ -14,17 +13,29 @@ import CommentCard from "../comment/CommentCard";
 import { FaArrowsTurnRight } from "react-icons/fa6";
 import { BiLoaderAlt } from "react-icons/bi";
 import Loader from "../ui/Loader";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getActivities } from "@/actions";
 
 const ActivitySection = ({ userId }: { userId: string }) => {
   const { ref, inView } = useInView();
-  const { activities, setSize, size, isReachingEnd, isLoading } = getActivities(
-    userId,
-    "forYou"
-  );
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ["forYou"],
+    queryFn: ({ pageParam }) =>
+      getActivities({ pageParam, userId, type: "forYou" }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
-    if (inView) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
+
+  const activities = data?.pages.flatMap((post) => post) ?? [];
 
   return activities.length > 0 ? (
     <section className="max-md:pb-14 space-y-3">
@@ -80,7 +91,7 @@ const ActivitySection = ({ userId }: { userId: string }) => {
                 {ref && refModel === "posts" && (
                   <Adiv
                     href={`/@${ref.owner.username}/post/${ref._id}`}
-                    className="mt-2 ml-12 p-2 space-y-2 border border-white/20 rounded-md">
+                    className="mt-2 ml-12 p-2 space-y-2 border border-gray-300 dark:border-white/20 rounded-md">
                     <PostCard user={ref.owner}>
                       <PostCard.Header
                         avatarSize="sm"
@@ -128,7 +139,7 @@ const ActivitySection = ({ userId }: { userId: string }) => {
         );
       })}
 
-      {!isReachingEnd && activities.length > 0 && (
+      {hasNextPage && activities.length > 0 && (
         <div ref={ref} className="flex justify-center items-center w-full">
           <BiLoaderAlt size={24} className="animate-spin" />
         </div>

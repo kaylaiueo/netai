@@ -1,7 +1,6 @@
 "use client";
 
 import Adiv from "@/components/ui/Adiv";
-import { getPostByUsername } from "@/utils/getInfiniteData";
 import React, { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import PostCard from "../post/PostCard";
@@ -10,25 +9,36 @@ import { BiLoaderAlt } from "react-icons/bi";
 import Image from "next/image";
 import { FiHeart, FiMessageCircle } from "react-icons/fi";
 import FormatNumber from "@/utils/FormatNumber";
-import { CommentData } from "@/types";
+import type { CommentData } from "@/types";
 import Loader from "../ui/Loader";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getUserPosts } from "@/actions";
 
 interface Props {
   username: string;
   userId: string;
-  type?: "likedPosts" | "media" | "allPosts";
+  type: "likedPosts" | "media" | "userPosts";
 }
 
 const PostSection = ({ username, userId, type }: Props) => {
   const { ref, inView } = useInView();
-  const { posts, setSize, size, isReachingEnd, isLoading } = getPostByUsername({
-    username,
-    type,
+
+  const { data, fetchNextPage, hasNextPage, isLoading } = useInfiniteQuery({
+    queryKey: [username + type],
+    queryFn: ({ pageParam }) => getUserPosts({ pageParam, username, type }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length < 10) return undefined;
+      return pages.length;
+    },
+    initialPageParam: 0,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    if (inView) setSize(size + 1);
+    if (inView) fetchNextPage();
   }, [inView]);
+
+  const posts = data?.pages.flatMap((post) => post) ?? [];
 
   return type === "media" ? (
     <>
@@ -81,7 +91,7 @@ const PostSection = ({ username, userId, type }: Props) => {
             );
           })}
 
-          {!isReachingEnd && posts.length > 0 && (
+          {hasNextPage && (
             <div ref={ref} className="flex justify-center items-center w-full">
               <BiLoaderAlt size={25} className="animate-spin" />
             </div>
@@ -95,7 +105,7 @@ const PostSection = ({ username, userId, type }: Props) => {
       )}
     </>
   ) : (
-    <section className="max-md:pb-14 space-y-3">
+    <section className="max-md:pb-14 pb-4 space-y-3">
       {posts.length > 0 ? (
         posts.map((post, i) => (
           <Adiv
@@ -120,7 +130,7 @@ const PostSection = ({ username, userId, type }: Props) => {
         <>
           {isLoading && <Loader />}
 
-          {type === "allPosts" && !isLoading && (
+          {type === "userPosts" && !isLoading && (
             <p className="text-center">No posts yet</p>
           )}
 
@@ -130,7 +140,7 @@ const PostSection = ({ username, userId, type }: Props) => {
         </>
       )}
 
-      {!isReachingEnd && posts.length > 0 && (
+      {hasNextPage && (
         <div ref={ref} className="flex justify-center items-center w-full">
           <BiLoaderAlt size={25} className="animate-spin" />
         </div>
