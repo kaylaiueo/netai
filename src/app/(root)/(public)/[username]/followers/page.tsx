@@ -26,7 +26,7 @@ const FollowersPage = async ({ params: { username } }: Params) => {
       </header>
 
       {user.followers.length > 0 ? (
-        <section className="space-y-3">
+        <section className="space-y-3 max-md:pb-20 pb-4">
           {user.followers.map((user: UserData, i) => (
             <Adiv
               key={i}
@@ -48,7 +48,11 @@ const FollowersPage = async ({ params: { username } }: Params) => {
                       />
                     )}
                   </div>
-                  {user.name && <p className="text-gray-500">{user.name}</p>}
+                  {user.name && (
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {user.name}
+                    </p>
+                  )}
                 </div>
               </Link>
 

@@ -110,6 +110,7 @@ const EditProfileForm = ({
           onChange={(e) => setValues({ ...values, name: e.target.value })}
           id="name"
           type="text"
+          maxLength={80}
           defaultValue={values.name}
           className="bg-gray-100 dark:bg-white/10 p-2 rounded-md outline-none w-full"
         />

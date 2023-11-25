@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import type { Metadata } from "next";
 import useCookies from "@/hooks/useCookies";
 import { redirect } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -31,6 +32,7 @@ export default function AuthLayout({
             <Image src="/logo.png" width={200} height={200} alt="Netai" />
           </div>
           {children}
+          <Toaster position="bottom-center" />
         </main>
       </body>
     </html>
