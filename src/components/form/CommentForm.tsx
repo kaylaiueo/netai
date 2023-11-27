@@ -122,6 +122,7 @@ const CommentForm = ({
         <textarea
           ref={textAreaRef}
           rows={1}
+          required
           maxLength={320}
           onChange={handleChange}
           defaultValue={reply.deep ? `@${reply.to} ` : ""}

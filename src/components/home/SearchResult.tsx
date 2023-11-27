@@ -15,41 +15,43 @@ const SearchResult = async ({ query }: { query: string }) => {
   return (
     <>
       {data.length > 0 ? (
-        data.map((user, i) => (
-          <Adiv
-            key={i}
-            href={`/@${user.username}`}
-            className="flex justify-between items-center">
-            <div className="flex gap-2 items-center">
-              <ProfilePicture src={user.picture} className="w-10 h-max" />
+        <section className="space-y-3 max-md:pb-20 pb-4">
+          {data.map((user, i) => (
+            <Adiv
+              key={i}
+              href={`/@${user.username}`}
+              className="flex justify-between items-center">
+              <div className="flex gap-2 items-center">
+                <ProfilePicture src={user.picture} className="w-10 h-max" />
 
-              <div>
-                <div className="flex gap-2 items-center">
-                  <p>{user.username}</p>
-                  {user.verify && (
-                    <TbCircleCheckFilled
-                      title="Verified"
-                      className="text-blue-500"
-                      size={19}
-                    />
+                <div>
+                  <div className="flex gap-2 items-center">
+                    <p>{user.username}</p>
+                    {user.verify && (
+                      <TbCircleCheckFilled
+                        title="Verified"
+                        className="text-blue-500"
+                        size={19}
+                      />
+                    )}
+                  </div>
+                  {user.name && (
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {user.name}
+                    </p>
                   )}
                 </div>
-                {user.name && (
-                  <p className="text-gray-500 dark:text-gray-400">
-                    {user.name}
-                  </p>
-                )}
               </div>
-            </div>
 
-            <FollowButton
-              className="px-4"
-              userId={userId}
-              username={user.username}
-              followers={user.followers}
-            />
-          </Adiv>
-        ))
+              <FollowButton
+                className="px-4"
+                userId={userId}
+                username={user.username}
+                followers={user.followers}
+              />
+            </Adiv>
+          ))}
+        </section>
       ) : (
         <p className="text-gray-500">No results found</p>
       )}

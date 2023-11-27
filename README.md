@@ -80,9 +80,7 @@ Start the build process:
 
 ## Known Issues
 
-- Error often occurs with `Application error: a server-side exception has
-  occurred` message. It need to restart the page.
-- Data or activity not updated (liked or commented some posts) because of caches.
+- The date/time on posts/comments is not synchronize with your location because it's from Vercel's server..
 
 ## UI/UX References
 

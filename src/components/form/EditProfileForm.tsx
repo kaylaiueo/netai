@@ -2,7 +2,7 @@
 
 import useFetch from "@/hooks/useFetch";
 import type { UserData } from "@/types";
-import { ChangeEvent, FormEvent } from "react";
+import { ChangeEvent } from "react";
 import { useState } from "react";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -11,12 +11,16 @@ import ProfilePicture from "@/components/ui/ProfilePicture";
 import DeleteImg from "@/utils/DeleteImg";
 import { BiLoaderAlt } from "react-icons/bi";
 import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import { ZodType, z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type NewValue = {
   name?: string;
   bio?: string;
   link?: string;
   picture?: string;
+  username?: string;
 };
 
 const EditProfileForm = ({
@@ -30,12 +34,6 @@ const EditProfileForm = ({
   const [fileImage, setFileImage] = useState<FormData | null>(null);
   const [isPending, startTransition] = useTransition();
   const [previewImage, setPreviewImage] = useState<string>("");
-  const [values, setValues] = useState<NewValue>({
-    name: currentUser.name,
-    bio: currentUser.bio,
-    link: currentUser.link,
-    picture: currentUser.picture,
-  });
 
   const getImage = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -51,37 +49,65 @@ const EditProfileForm = ({
     }
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const onSubmit = (data: NewValue) => {
     startTransition(async () => {
       const response = fileImage !== null ? await UploadImg(fileImage) : null;
 
-      const { data: prevImg, success } = await useFetch<string>(
-        `/user/edit/profile?id=${userId}`,
-        {
-          method: "PUT",
-          cache: "no-store",
-          body: JSON.stringify({
-            ...values,
-            picture: response?.src,
-          }),
-        }
-      );
+      const {
+        data: prevImg,
+        success,
+        message,
+      } = await useFetch<string>(`/user/edit/profile?id=${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name: data.name,
+          bio: data.bio,
+          link: data.link,
+          username: data.username,
+          picture: response?.src || currentUser.picture,
+        }),
+      });
 
       if (success) {
-        router.replace(`/@${currentUser.username}`);
+        router.replace(`/@${data.username}`);
         router.refresh();
         toast.success("Edit profile successfully");
-        await DeleteImg(prevImg);
+
+        if (previewImage) {
+          DeleteImg(prevImg);
+        }
       } else {
-        toast.error("Pls try again");
+        if (previewImage) {
+          DeleteImg(response?.src || "");
+        }
+
+        toast.error(message);
       }
     });
   };
 
+  const schema: ZodType<NewValue> = z.object({
+    username: z
+      .string()
+      .min(4)
+      .max(22)
+      .regex(/^[a-z0-9]+$/, {
+        message:
+          "Username must not contain spaces/symbols, and must be in lowercase",
+      }),
+    bio: z.string().max(200).or(z.literal("")),
+    link: z.string().url().or(z.literal("")),
+    name: z.string().max(80).or(z.literal("")),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<NewValue>({ resolver: zodResolver(schema) });
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="w-full justify-center items-center flex">
         <label
           htmlFor="picture"
@@ -103,44 +129,67 @@ const EditProfileForm = ({
       </div>
 
       <div>
-        <label htmlFor="name" className="text-gray-500">
+        <label htmlFor="name" className="text-gray-500 dark:text-gray-400">
           Name
         </label>
         <input
-          onChange={(e) => setValues({ ...values, name: e.target.value })}
           id="name"
           type="text"
+          defaultValue={currentUser.name}
           maxLength={80}
-          defaultValue={values.name}
           className="bg-gray-100 dark:bg-white/10 p-2 rounded-md outline-none w-full"
+          {...register("name")}
         />
+
+        {errors.name && (
+          <p className="text-sm text-red-500">{errors.name.message}</p>
+        )}
       </div>
 
       <div>
-        <label htmlFor="link" className="text-gray-500">
+        <label htmlFor="username" className="text-gray-500 dark:text-gray-400">
+          Username
+        </label>
+        <input
+          id="username"
+          type="text"
+          minLength={4}
+          maxLength={22}
+          defaultValue={currentUser.username}
+          className="bg-gray-100 dark:bg-white/10 p-2 rounded-md outline-none w-full"
+          {...register("username")}
+        />
+
+        {errors.username && (
+          <p className="text-sm text-red-500">{errors.username.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="link" className="text-gray-500 dark:text-gray-400">
           Add Link
         </label>
         <input
-          onChange={(e) => setValues({ ...values, link: e.target.value })}
           id="link"
           type="url"
           pattern="https://.*"
-          defaultValue={values.link}
+          defaultValue={currentUser.link}
           placeholder="https://example.com"
           className="bg-gray-100 dark:bg-white/10 p-2 rounded-md outline-none w-full"
+          {...register("link")}
         />
       </div>
 
       <div>
-        <label htmlFor="bio" className="text-gray-500">
+        <label htmlFor="bio" className="text-gray-500 dark:text-gray-400">
           Bio
         </label>
         <textarea
           id="bio"
-          defaultValue={values.bio}
-          maxLength={150}
-          onChange={(e) => setValues({ ...values, bio: e.target.value })}
+          defaultValue={currentUser.bio}
+          maxLength={200}
           className="bg-gray-100 dark:bg-white/10 p-2 rounded-md outline-none h-44 w-full"
+          {...register("bio")}
         />
       </div>
 

@@ -39,7 +39,7 @@ const SearchLayout = ({ children, type = undefined }: Props) => {
 
   return (
     <>
-      <div className="sticky bg-white dark:bg-[#121212] top-0 z-40 pt-4">
+      <div className="sticky bg-white dark:bg-[#121212] top-0 z-40 pt-4 pb-2">
         <div className="flex gap-2 items-center">
           {searchParams.get("q") && (
             <Link replace href="/" className="px-2">
