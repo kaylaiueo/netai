@@ -4,8 +4,9 @@ const FormatDate = (createdAt: Date): string => {
     dateStyle: "medium",
   });
 
-  const hours = date.toLocaleTimeString("en-US", {
+  const hours = date.toLocaleTimeString([], {
     timeStyle: "short",
+    hour12: true,
   });
 
   return postDate + " · " + hours;
