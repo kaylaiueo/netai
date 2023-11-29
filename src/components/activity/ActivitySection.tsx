@@ -73,7 +73,7 @@ const ActivitySection = ({ userId }: { userId: string }) => {
                       <span
                         title={FormatDate(createdAt)}
                         className="text-gray-500 text-sm">
-                        {" · " + useTime(createdAt.toString())}
+                        {" · " + useTime(createdAt)}
                       </span>
                     </p>
                   </div>

@@ -1,6 +1,6 @@
 import moment from "moment";
 
-const useTime = (createdAt: string): string => {
+const useTime = (createdAt: number): string => {
   const currentDate = new Date();
   const formatedDate: string = moment(createdAt).format();
   const isMoreThan7Days: number = parseInt(moment(createdAt).fromNow());
@@ -25,7 +25,7 @@ const useTime = (createdAt: string): string => {
     case `${isMoreThan7Days} months ago`:
     case "a year ago":
     case `${isMoreThan7Days} years ago`:
-      return createdAt.includes(currentDate.getFullYear().toString())
+      return formatedDate.includes(currentDate.getFullYear().toString())
         ? postDate.slice(0, -6)
         : postDate;
     default:

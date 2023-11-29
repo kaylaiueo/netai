@@ -69,7 +69,7 @@ const CommentForm = ({
       ref: "optimistic",
       owner: currentUser as string & UserData,
       text: comment,
-      createdAt: new Date(Date.now()),
+      createdAt: Date.now(),
       replies: [],
       optimistic: true,
     };

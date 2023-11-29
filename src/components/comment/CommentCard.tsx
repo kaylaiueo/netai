@@ -53,7 +53,7 @@ const Header = ({
   variant?: "noflex";
   commentId?: string;
   replyId?: string;
-  createdAt: Date;
+  createdAt: number;
   userId: string;
   type?: "comment" | "reply";
   disableMenu?: boolean;
@@ -83,7 +83,7 @@ const Header = ({
             title={FormatDate(createdAt)}
             dateTime={createdAt.toString()}
             className="text-sm text-gray-500 dark:text-gray-400 hover:underline">
-            {useTime(createdAt.toString())}
+            {useTime(createdAt)}
           </time>
         )}
 

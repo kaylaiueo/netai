@@ -6,7 +6,7 @@ export type UserData = {
   followers: string[] & UserData[];
   following: UserData[];
   verify: boolean;
-  createdAt: Date;
+  createdAt: number;
   picture?: string;
   bio?: string;
   link?: string;
@@ -18,7 +18,7 @@ export type ReplyData = {
   owner: string & UserData;
   ref: string;
   text: string;
-  createdAt: Date;
+  createdAt: number;
   optimistic?: boolean;
 };
 
@@ -26,7 +26,7 @@ export type CommentData = {
   _id: string;
   ref: string | PostData;
   owner: string & UserData;
-  createdAt: Date;
+  createdAt: number;
   replies: ReplyData[];
   text: string;
   optimistic?: boolean;
@@ -37,7 +37,7 @@ export type PostData = {
   comments: string[] & CommentData[];
   likes: string[] & UserData[];
   owner: string & UserData;
-  createdAt: Date;
+  createdAt: number;
   caption?: string;
   image?: {
     src: string;
@@ -48,7 +48,7 @@ export type PostData = {
 
 export type ActivityData = {
   owner: string[] | UserData[];
-  createdAt: Date;
+  createdAt: number;
   refModel?: "posts" | "comments";
   contentModel?: "comments" | "replies" | "posts";
   type: "forYou" | "mentions";
@@ -61,5 +61,5 @@ export type ActivityData = {
 export type ResponseApi<T> = {
   success: boolean;
   message: string;
-  data: T
+  data: T;
 };

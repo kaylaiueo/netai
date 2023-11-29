@@ -79,7 +79,7 @@ const Header = ({
           dateTime={post.createdAt.toString()}
           title={FormatDate(post.createdAt)}
           className="text-sm text-gray-500 dark:text-gray-400 hover:underline">
-          {useTime(post.createdAt.toString())}
+          {useTime(post.createdAt)}
         </time>
 
         {!disableMenu && (

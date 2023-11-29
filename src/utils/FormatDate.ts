@@ -1,14 +1,11 @@
-import moment from "moment";
+const FormatDate = (createdAt: number): string => {
+  const date = new Date(createdAt);
 
-const FormatDate = (createdAt: Date): string => {
-  const formatedDate = moment(createdAt).format();
-  const date = new Date(formatedDate);
-
-  const postDate = date.toLocaleDateString("en-US", {
+  const postDate = date.toLocaleDateString([], {
     dateStyle: "medium",
   });
 
-  const hours = date.toLocaleTimeString("en-US", {
+  const hours = date.toLocaleTimeString([], {
     timeStyle: "short",
   });
 
